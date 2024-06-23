@@ -27,7 +27,7 @@ os.makedirs(IMAGE_FOLDER, exist_ok=True)
 os.makedirs(SUMMARY_FOLDER, exist_ok=True)
 os.makedirs(AUDIO_FOLDER, exist_ok=True)
 
-openai.api_key = 'sk-proj-YBEJ1hO2c9BrtzPbEp4uT3BlbkFJlgE2E9VQyWKrzTAUgmcv'
+openai.api_key = 'sk-proj-1yMUbKq5IQkoGyAYabkwT3BlbkFJSpNbtD4ot4AFoVqfGe7f'
 
 def get_text_from_messages(messages, model="gpt-3.5-turbo", temperature=0, max_tokens=4096):
     response = openai.chat.completions.create(

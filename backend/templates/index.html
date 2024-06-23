@@ -6,29 +6,27 @@
     <title>Text to Slideshow</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="d-flex flex-column align-items-center justify-content-center vh-100">
     <div class="container-fluid text-center">
-        <h1 class="mb-4">Text to Slideshow</h1>
+        <div class="d-flex justify-content-center align-items-center mb-5">
+            <div class="display-4 font-weight-bold mr-3" id="visualLearn" style="color: #151515; font-family: 'Poppins', sans-serif; font-size: 80px; font-weight: 800;">VisualLearn</div>
+            <div class="text-success display-4 font-weight-bold" id="ai">AI</div>
+        </div>
         <form id="text-form" action="{{ url_for('submit_text') }}" method="POST">
             <textarea name="input_text" rows="10" cols="50" placeholder="Enter your text here..." class="form-control mb-3"></textarea><br>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
-        <div id="loading-spinner" class="spinner-border text-primary mt-3" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <div id="loading-message" class="mt-2" style="display: none;">
-            Loading slides, please wait...
-        </div>
     </div>
-
     <script>
         $(document).ready(function() {
             $('#text-form').submit(function(event) {
-                $('#loading-spinner').show();
-                $('#loading-message').show();
+                // Optionally hide the spinner here, it should not be shown initially
+                $('#loading-spinner').hide();
+                $('#loading-message').hide();
             });
         });
     </script>

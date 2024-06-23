@@ -4,3 +4,4 @@ requests
 nltk
 Pillow
 openai
+Celery

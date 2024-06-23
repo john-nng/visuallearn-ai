@@ -6,12 +6,28 @@
     <title>Text to Slideshow</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <style>
+        #new-prompt-button {
+            display: none;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .container-fluid {
+            padding-top: 20px; /* Add padding to the top of the container */
+        }
+        h1 {
+            margin-top: 20px; /* Add margin to the top of the heading */
+        }
+    </style>
 </head>
 <body class="d-flex flex-column align-items-center justify-content-center vh-100">
     <div class="container-fluid text-center">
-        <h1 class="mb-4">Text to Slideshow</h1>
         <div id="slide-container" class="d-flex flex-column align-items-center justify-content-around w-100">
             <div id="title-card" class="card">
                 <h2 id="slide-title">Slide Title</h2>
@@ -19,7 +35,7 @@
             <div id="image-card" class="card d-flex align-items-center justify-content-center">
                 <img src="" alt="Slide Image" id="slide-image" class="img-fluid mb-3 rounded">
             </div>
-            <div class="card w-100 my-4">
+            <div class="container-fluid text-center">
                 <audio controls class="w-100">
                     <source src="" type="audio/wav" id="slide-audio">
                     Your browser does not support the audio element.
@@ -32,6 +48,9 @@
                 <button id="prev-slide" class="btn btn-dark">←</button>
                 <button id="next-slide" class="btn btn-dark">→</button>
             </div>
+            <div class="mt-3">
+                <a href="/" class="btn btn-primary" id="new-prompt-button">New Prompt</a>
+            </div>
         </div>
         <div id="loading-spinner" class="spinner-border text-primary mt-3" role="status">
             <span class="sr-only">Loading...</span>
@@ -43,9 +62,11 @@
 
     <script>
         let currentSlide = 0;
-        let numSlides = 0;
 
         function loadSlide(slideNumber) {
+            $('#loading-spinner').show();
+            $('#loading-message').show();
+
             $.get(`/api/slide/${slideNumber}`, function(data) {
                 if (data.exists) {
                     $('#slide-title').text(`Slide ${data.slide_number}`);
@@ -54,6 +75,10 @@
                     $('#slide-caption').html(data.summary.split(' ').map(word => `<b>${word.slice(0, Math.ceil(word.length / 3))}</b>${word.slice(Math.ceil(word.length / 3))}`).join(' '));
                     currentSlide = slideNumber;
                     updateNavigationButtons();
+
+                    // Show the new prompt button when the slide is loaded
+                    $('#new-prompt-button').show();
+
                     $('#slide-container').show();
                     $('#loading-spinner').hide();
                     $('#loading-message').hide();
@@ -79,11 +104,13 @@
         $('#prev-slide').click(function() {
             if (currentSlide > 0) {
                 loadSlide(currentSlide - 1);
+                $('#new-prompt-button').hide();
             }
         });
 
         $('#next-slide').click(function() {
             loadSlide(currentSlide + 1);
+            $('#new-prompt-button').hide();
         });
 
         function pollForNewSlides() {
