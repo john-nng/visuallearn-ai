@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Slideshow</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="d-flex flex-column align-items-center justify-content-center vh-100">
+    <div class="container-fluid text-center">
+        <h1 class="mb-4">Text to Slideshow</h1>
+        <div id="slide-container" class="d-flex flex-column align-items-center justify-content-around w-100">
+            <div id="title-card" class="card">
+                <h2 id="slide-title">Slide Title</h2>
+            </div>
+            <div id="image-card" class="card d-flex align-items-center justify-content-center">
+                <img src="" alt="Slide Image" id="slide-image" class="img-fluid mb-3 rounded">
+            </div>
+            <div class="card w-100 my-4">
+                <audio controls class="w-100">
+                    <source src="" type="audio/wav" id="slide-audio">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+            <div id="caption-card" class="card">
+                <p id="slide-caption" class="caption"></p>
+            </div>
+            <div class="navigation">
+                <button id="prev-slide" class="btn btn-dark">←</button>
+                <button id="next-slide" class="btn btn-dark">→</button>
+            </div>
+        </div>
+        <div id="loading-spinner" class="spinner-border text-primary mt-3" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div id="loading-message" class="mt-2" style="display: none;">
+            Loading slides, please wait...
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        let numSlides = 0;
+
+        function loadSlide(slideNumber) {
+            $.get(`/api/slide/${slideNumber}`, function(data) {
+                if (data.exists) {
+                    $('#slide-title').text(`Slide ${data.slide_number}`);
+                    $('#slide-image').attr('src', data.image_file);
+                    $('#slide-audio').attr('src', data.audio_file);
+                    $('#slide-caption').html(data.summary.split(' ').map(word => `<b>${word.slice(0, Math.ceil(word.length / 3))}</b>${word.slice(Math.ceil(word.length / 3))}`).join(' '));
+                    currentSlide = slideNumber;
+                    updateNavigationButtons();
+                    $('#slide-container').show();
+                    $('#loading-spinner').hide();
+                    $('#loading-message').hide();
+                } else {
+                    console.log("Slide does not exist.");
+                }
+            }).fail(function() {
+                console.log("Failed to load slide.");
+            });
+        }
+
+        function updateNavigationButtons() {
+            $('#prev-slide').prop('disabled', currentSlide === 0);
+            checkNextSlide();
+        }
+
+        function checkNextSlide() {
+            $.get(`/api/slide_status/${currentSlide + 1}`, function(data) {
+                $('#next-slide').prop('disabled', !data.exists);
+            });
+        }
+
+        $('#prev-slide').click(function() {
+            if (currentSlide > 0) {
+                loadSlide(currentSlide - 1);
+            }
+        });
+
+        $('#next-slide').click(function() {
+            loadSlide(currentSlide + 1);
+        });
+
+        function pollForNewSlides() {
+            checkNextSlide();
+            if (currentSlide === 0) {
+                $.get('/api/slide_status/0', function(data) {
+                    if (data.exists) {
+                        loadSlide(0);
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function() {
+            $('#loading-spinner').show();
+            $('#loading-message').show();
+            pollForNewSlides();
+            setInterval(pollForNewSlides, 5000);
+        });
+    </script>
+</body>
+</html>
